@@ -1,25 +1,21 @@
-use sqlx::Executor;
+use sqlx::MySql;
 
-use crate::infra::db;
-
-pub async fn inster_user<E> (
-    executor:E,
+pub async fn insert_user<'e, E>(
+    executor: E,
     email: Option<String>,
     phone: Option<String>,
     salt: String,
     ciphertext: String,
-)
- -> Result<(), sqlx::Error>
- where
-for<'a> E: sqlx::Executor<'a> + Send + Sync,
+) -> Result<(), sqlx::Error>
+where
+    E: sqlx::Executor<'e, Database = MySql>,
 {
-    let result = sqlx::query("INSERT INTO users (email,phone,salt,ciphertext,create_time,update_time) VALUES (?,?,?,?,?,?)")
+    sqlx::query("INSERT INTO users (email,phone,salt,ciphertext,create_time,update_time) VALUES (?,?,?,?,?,?)")
     .bind(email)
     .bind(phone)
     .bind(salt)
     .bind(ciphertext)
-    .execute(&mut executor).await?;
+    .execute(executor).await?;
 
     Ok(())
 }
- 

@@ -1,15 +1,15 @@
 use sqlx::MySql;
 
-use super::repo::Context;
-use crate::infra::db;
+use crate::dao::user_dao;
 
-pub async fn create_user<E>(
-    ctx: &mut Context<E>,
+pub async fn create_user<'e,E>(
+    executor: E,
     email: Option<String>,
     phone: Option<String>,
     salt: String,
     ciphertext: String,
-) where
-    for<'a> E: sqlx::Executor<'a> + Send + Sync,
+)  where
+    E: sqlx::Executor<'e, Database = MySql>,
 {
+   user_dao::insert_user(executor, email, phone, salt, ciphertext);
 }
