@@ -6,7 +6,7 @@ pub struct User {
     pub email: Option<String>,
     pub phone: Option<String>,
     pub salt: Option<String>,
-    pub passtext: Option<String>,
+    pub ciphertext: Option<String>,
     pub create_time:Option<u32>,
     pub update_time:Option<u32>,
 }
