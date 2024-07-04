@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use sqlx::{
     migrate::MigrateDatabase,
-    mysql::{MySqlPool, MySqlPoolOptions, MySqlRow},
+    mysql::{MySqlPool, MySqlPoolOptions},
 };
 use tokio::sync::OnceCell;
 

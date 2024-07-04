@@ -1,7 +1,5 @@
-use std::sync::Arc;
-
 use axum::{
-    extract::{Json, State,Path},
+    extract::Json,
     response::IntoResponse,
 };
 use serde::{Deserialize, Serialize};

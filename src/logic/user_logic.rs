@@ -1,9 +1,5 @@
-use core::str;
-use std::{  string, sync::Arc,error::Error};
-
-use bcrypt::{hash,DEFAULT_COST,hash_with_salt,verify};
+use bcrypt::{DEFAULT_COST,hash_with_salt,verify};
 use rand::{RngCore,rngs::OsRng};
-use sqlx::Acquire;
 
 use crate::{infra::db, repository::{user_repo}};
 
@@ -11,15 +7,30 @@ pub async fn register_new(
     email: Option<String>,
     phone: Option<String>,
     password: String,
-) {
+) -> Result<(),String>{
+    let mut conn = db::get_db_conn().await;
+    let user = user_repo::find_user_by_phone_or_email(&mut *conn,email.clone(),phone.clone()).await;
+    if let Ok(_) = user{
+        return  Err(String::from("email or phone has used"));
+    }
+
     let salt =  generate_random_bytes();
     let hashed_pwd = hash_with_salt(password, DEFAULT_COST, salt).unwrap().to_string();
 
     let mut tx = db::begin_db_transaction().await;
 
-    user_repo::create_user( &mut *tx,email, phone, String::from_utf8(salt.to_vec()).unwrap(),hashed_pwd).await;
+    let salt_str = String::from_utf8(salt.to_vec()).unwrap();
+    user_repo::create_user( &mut *tx,email,phone, salt_str,hashed_pwd).await;
 
-    tx.commit().await;
+    let commit_res = tx.commit().await;
+
+    match commit_res{
+        Ok(_)=> Ok(()),
+        Err(err) => {
+            // todo: 记录失败原因日志
+            Err(String::from("register failed"))
+        },
+    }
 }
 
 pub async fn login(
@@ -46,7 +57,7 @@ pub async fn login(
 }
 
 fn generate_random_bytes() -> [u8; 16] {
-    let mut bytes = [0u8; 16];
-    OsRng.fill_bytes(&mut bytes);
-    bytes
+    let mut rdm_bytes = [0u8; 16];
+    OsRng.fill_bytes(&mut rdm_bytes);
+    rdm_bytes
 }
