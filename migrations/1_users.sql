@@ -1,6 +1,6 @@
 -- Add migration script here
 CREATE TABLE `users`  (
-  `id` bigint NOT NULL COMMENT '用户id',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '用户id',
   `email` varchar(250) COMMENT 'email地址',
   `phone` varchar(14) COMMENT '电话号码',
   `salt` varchar(16) NOT NULL COMMENT '密码盐',

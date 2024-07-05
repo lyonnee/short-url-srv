@@ -10,5 +10,7 @@ async fn main() {
     let db_url: &str = "mysql://root:admin123@localhost:3306/short_url_srv";
     infra::db::init(db_url,10).await;
     
+    tracing_subscriber::fmt::init();
+    
     web_server::service::build_and_run().await;
 }
