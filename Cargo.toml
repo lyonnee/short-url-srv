@@ -10,8 +10,9 @@ axum = { version = "0.7" }
 tokio = { version = "1.0", features = ["full"] }
 serde = { version = "1.0" , features = ["derive"]}
 sqlx = { version = "0.7", features = [ "runtime-tokio","mysql", "time" ] }
-tracing = "0.1"
 bcrypt = "0.15"
 rand = "0.8"
-log = { version = "0.4", features = ["std", "serde"] }
-tracing-subscriber = "0.3.18"
+tracing = {version = "0.1.40"}
+tracing-subscriber = "0.3"
+tracing-appender = "0.2"
+tracing-serde = "0.1"

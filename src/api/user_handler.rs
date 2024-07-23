@@ -23,6 +23,9 @@ pub struct LoginReq {
 }
 
 pub async fn registration(Json(req): Json<RegistrationReq>) -> impl IntoResponse {
+    let span = tracing::span!(tracing::Level::TRACE, "registration");
+    let _enter = span.enter();
+
     if req.email == Option::None && req.phone == Option::None {
         return Json(Response::fail(1, "password or email cannot both be empty".to_string()));
     }

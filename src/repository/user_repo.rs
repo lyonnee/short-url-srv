@@ -1,9 +1,8 @@
 use sqlx::MySql;
-use log;
 
 use crate::{
     dao::{ent::users::User, user_dao},
-    infra::time,
+    infra::utils::time,
 };
 
 pub async fn create_user<'e, E: sqlx::Executor<'e, Database = MySql>>(
@@ -19,7 +18,7 @@ pub async fn create_user<'e, E: sqlx::Executor<'e, Database = MySql>>(
     match res {
         Ok(res) => Ok(res.last_insert_id()),
         Err(err) => {
-            log::error!("err: {err}");
+            tracing::error!("err: {err}");
             Err(())
         }
     }
@@ -35,7 +34,7 @@ pub async fn find_user_by_phone_or_email<'e, E: sqlx::Executor<'e, Database = My
         match res {
             Ok(user) => return Some(user),
             Err(err) => {
-                log::error!("err: {err}");
+                tracing::error!("err: {err}");
                 return None
             },
         }
@@ -46,7 +45,7 @@ pub async fn find_user_by_phone_or_email<'e, E: sqlx::Executor<'e, Database = My
         match res {
             Ok(user) => return Some(user),
             Err(err) => {
-                log::error!("err: {err}");
+                tracing::error!("err: {err}");
                 return None
             },
         }
