@@ -5,7 +5,7 @@ pub fn init() {
 
     // let (console_writer, _) = tracing_appender::non_blocking(std::io::stdout());
 
-    let subscriber = tracing_subscriber::fmt()
+    let subscriber = tracing_subscriber::fmt().json()
         .with_max_level(tracing::Level::INFO)
         .with_writer(file_writer)
         .with_writer(std::io::stdout)

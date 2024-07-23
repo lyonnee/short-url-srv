@@ -1250,7 +1250,6 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-appender",
- "tracing-serde",
  "tracing-subscriber",
 ]
 
@@ -1813,11 +1812,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ad0f048c97dbd9faa9b7df56362b8ebcaa52adb06b498c050d2f4e32f90a7a8b"
 dependencies = [
  "nu-ansi-term",
+ "serde",
+ "serde_json",
  "sharded-slab",
  "smallvec",
  "thread_local",
  "tracing-core",
  "tracing-log",
+ "tracing-serde",
 ]
 
 [[package]]

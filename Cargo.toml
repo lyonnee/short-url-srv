@@ -13,6 +13,5 @@ sqlx = { version = "0.7", features = [ "runtime-tokio","mysql", "time" ] }
 bcrypt = "0.15"
 rand = "0.8"
 tracing = {version = "0.1.40"}
-tracing-subscriber = "0.3"
+tracing-subscriber = { version = "0.3", features = ["json"] }
 tracing-appender = "0.2"
-tracing-serde = "0.1"
