@@ -1,15 +1,29 @@
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, Layer};
+
 pub fn init() {
     // 配置 tracing_subscriber 以 JSON 格式写入日志到文件
-    let file_appender = tracing_appender::rolling::minutely("./logs", "app.log");
-    let (file_writer, _) = tracing_appender::non_blocking(file_appender);
+    let (file_writer, _) =
+        tracing_appender::non_blocking(tracing_appender::rolling::daily("./logs", "app.log"));
 
-    // let (console_writer, _) = tracing_appender::non_blocking(std::io::stdout());
+    let log_file = tracing_subscriber::fmt::layer()
+        .json()
+        .with_level(true)
+        .with_ansi(false)
+        .with_target(false)
+        .with_file(true)
+        .with_line_number(true)
+        .with_writer(file_writer);
 
-    let subscriber = tracing_subscriber::fmt().json()
-        .with_max_level(tracing::Level::INFO)
-        .with_writer(file_writer)
-        .with_writer(std::io::stdout)
-        .finish();
+    let log_stdout = tracing_subscriber::fmt::layer()
+        .with_level(true)
+        .with_ansi(true)
+        .with_target(false)
+        .with_file(true)
+        .with_line_number(true)
+        .with_writer(std::io::stdout).with_filter(tracing_subscriber::filter::LevelFilter::DEBUG);
 
-    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
+    tracing_subscriber::registry()
+        .with(log_file)
+        .with(log_stdout)
+        .init();
 }
