@@ -1,44 +1,13 @@
+use std::{
+    path::Path,
+    sync::{mpsc::channel, Arc, RwLock, RwLockReadGuard},
+    time::Duration,
+};
 
-use std::{path::Path, sync::{mpsc::channel, Arc, RwLock, RwLockReadGuard}, time::Duration};
-
-use serde::Deserialize;
 use confique::Config;
 use lazy_static::lazy_static;
 use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
-
-#[derive(Config, Debug, Deserialize)]
-#[allow(unused)]
-pub struct Configs {
-    pub http: Http,
-    pub log: Log,
-    pub mysql: Mysql,
-}
-
-#[derive(Config, Debug, Deserialize)]
-#[allow(unused)]
-pub struct Http {
-    #[config(default = "0.0.0.0:10240")]
-    pub addr: String,
-}
-
-#[derive(Config, Debug, Deserialize)]
-#[allow(unused)]
-pub struct Log {
-    #[config(default = "info")]
-    pub level: String,
-    #[config(default = "logs/")]
-    pub filepath: String,
-    #[config(default = "app.log")]
-    pub filename: String,
-}
-
-#[derive(Config, Debug, Deserialize)]
-#[allow(unused)]
-pub struct Mysql {
-    pub dsn: String,
-    #[config(default = 256)]
-    pub max_conns: u32,
-}
+use serde::Deserialize;
 
 lazy_static! {
     static ref CONFIGS: Arc<RwLock<Option<Configs>>> = Arc::new(RwLock::new(None));
@@ -49,7 +18,6 @@ pub fn get_configs() -> RwLockReadGuard<'static, Option<Configs>> {
     configs_guard
 }
 
-
 pub fn init(env: String) -> Result<(), confique::Error> {
     let filepath = env + ".yaml";
     let cfg: Configs = Configs::builder().file(&filepath).load()?;
@@ -57,9 +25,7 @@ pub fn init(env: String) -> Result<(), confique::Error> {
     let mut configs_lock = CONFIGS.write().unwrap();
     *configs_lock = Some(cfg);
 
-    tokio::spawn(async move{
-        watch(&filepath)
-    });
+    tokio::spawn(async move { watch(&filepath) });
 
     tracing::info!("The config has been loaded!!!");
 
@@ -99,10 +65,10 @@ pub fn watch(filepath: &str) {
                     Ok(cfg) => {
                         let mut configs_lock = CONFIGS.write().unwrap();
                         *configs_lock = Some(cfg);
-                    },
+                    }
                     Err(e) => {
                         println!("watch failed: {:?}", e)
-                    },
+                    }
                 }
             }
 
@@ -113,4 +79,63 @@ pub fn watch(filepath: &str) {
             }
         }
     }
+}
+
+
+#[derive(Config, Debug, Deserialize)]
+#[allow(unused)]
+pub struct Configs {
+    pub http: Http,
+    pub log: Log,
+    pub database: Database,
+}
+
+#[derive(Config, Debug, Deserialize)]
+#[allow(unused)]
+pub struct Http {
+    #[config(default = "0.0.0.0:10240")]
+    pub addr: String,
+}
+
+#[derive(Config, Debug, Deserialize)]
+#[allow(unused)]
+pub struct Log {
+    pub file: FileLog,
+    pub stdout: Stdout,
+}
+
+#[derive(Config, Debug, Deserialize)]
+#[allow(unused)]
+pub struct FileLog {
+    #[config(default = "true")]
+    pub enable: bool,
+    #[config(default = "info")]
+    pub level: String,
+    #[config(default = "logs/")]
+    pub filepath: String,
+    #[config(default = "app.log")]
+    pub filename: String,
+}
+
+#[derive(Config, Debug, Deserialize)]
+#[allow(unused)]
+pub struct Stdout {
+    #[config(default = "true")]
+    pub enable: bool,
+    #[config(default = "info")]
+    pub level: String,
+}
+
+#[derive(Config, Debug, Deserialize)]
+#[allow(unused)]
+pub struct Database{
+    pub mysql:Mysql,
+}
+
+#[derive(Config, Debug, Deserialize)]
+#[allow(unused)]
+pub struct Mysql {
+    pub dsn: String,
+    #[config(default = 256)]
+    pub max_conns: u32,
 }

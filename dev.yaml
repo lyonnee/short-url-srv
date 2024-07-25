@@ -2,10 +2,16 @@ http:
   addr: 0.0.0.0:10240
 
 log:
-  level: debug
-  filepath: ./logs
-  filename: app.log
-  
-mysql:
-  dsn: mysql://root:admin123@localhost:3306/short_url_srv
-  max_conns: 128
+  file:
+    enable: true
+    level: debug
+    filepath: ./logs
+    filename: app.log
+  stdout:
+    enable: true
+    level: debug
+
+database:
+  mysql:
+    dsn: mysql://root:admin123@localhost:3306/short_url_srv
+    max_conns: 128

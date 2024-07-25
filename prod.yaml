@@ -2,10 +2,16 @@ http:
   port: 0.0.0.0:10240
 
 log:
-  level: info
-  filepath: ./logs
-  filename: app.log
+  file:
+    enable: true
+    level: info
+    filepath: ./logs
+    filename: app.log
+  stdout:
+    enable: true
+    level: info
 
-mysql:
-  dsn: mysql://root:admin123@localhost:3306/short_url_srv
-  max_conns: 128
+database:
+  mysql:
+    dsn: mysql://root:admin123@localhost:3306/short_url_srv
+    max_conns: 128
