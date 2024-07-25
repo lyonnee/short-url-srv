@@ -6,20 +6,27 @@ use sqlx::{
 };
 use tokio::sync::OnceCell;
 
+use super::config;
+
 static DB_POOL: OnceCell<Arc<MySqlPool>> = OnceCell::const_new();
 
-pub async fn init(db_url: &str, max_conns: u32) {
-    if sqlx::MySql::database_exists(db_url).await.unwrap_or(false) == false {}
+pub async fn init() {
+    let lock_config = config::get_configs();
+    let config = lock_config.as_ref().unwrap();
+
+    if sqlx::MySql::database_exists(&config.mysql.dsn).await.unwrap_or(false) == false {}
 
     let db = MySqlPoolOptions::new()
-        .max_connections(max_conns)
-        .connect(&db_url)
+        .max_connections(config.mysql.max_conns)
+        .connect(&config.mysql.dsn)
         .await
         .expect("Failed to create pool");
 
-        sqlx::migrate!().run(&db).await;
+    let _ = sqlx::migrate!().run(&db).await;
 
-    DB_POOL.set(Arc::new(db));
+    let _ = DB_POOL.set(Arc::new(db));
+
+    tracing::info!("The database connect has been initialized!!!");
 }
 
 pub async fn get_db_conn() -> sqlx::pool::PoolConnection<sqlx::MySql> {

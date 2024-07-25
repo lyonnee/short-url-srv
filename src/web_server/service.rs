@@ -1,10 +1,17 @@
 use axum;
 use tokio::net::TcpListener;
 
+use crate::infra::config;
+
 pub async fn build_and_run() {
     let app = super::router::new();
 
-    let listener = TcpListener::bind("0.0.0.0:10240").await.unwrap();
+    let lock_config = config::get_configs();
+    let config = lock_config.as_ref().unwrap();
+
+    let listener = TcpListener::bind(&config.http.addr).await.unwrap();
+
+    tracing::info!("The web server has already running, addr: {}",&config.http.addr);
 
     axum::serve(listener, app).await.unwrap();
 }

@@ -1,16 +1,26 @@
-mod web_server;
-mod infra;
-mod dao;
+use std::env::{self, Args};
+
 mod api;
+mod dao;
+mod infra;
 mod logic;
 mod repository;
+mod web_server;
 
 #[tokio::main]
 async fn main() {
-    let db_url: &str = "mysql://root:admin123@localhost:3306/short_url_srv";
-    infra::db::init(db_url,10).await;
+    let args: Vec<String> = env::args().collect();
+
+    let env: String = get_env(&args);
+    let _ = infra::config::init(env);
 
     let _guard = infra::logger::init();
-    
+
+    infra::db::init().await;
+
     web_server::service::build_and_run().await;
+}
+
+fn get_env(args: &[String]) -> String {
+    args[1].clone()
 }

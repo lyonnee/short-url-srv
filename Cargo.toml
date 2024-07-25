@@ -8,10 +8,17 @@ edition = "2021"
 [dependencies]
 axum = { version = "0.7" }
 tokio = { version = "1.0", features = ["full"] }
-serde = { version = "1.0" , features = ["derive"]}
+
 sqlx = { version = "0.7", features = [ "runtime-tokio","mysql", "time" ] }
-bcrypt = "0.15"
-rand = "0.8"
+
 tracing = {version = "0.1.40"}
 tracing-subscriber = { version = "0.3", features = ["json"] }
 tracing-appender = "0.2"
+
+confique = {version = "0.2.5", features = ["yaml"]}
+
+serde = { version = "1.0" , features = ["derive"]}
+lazy_static = {version = "1.5"}
+bcrypt = "0.15"
+rand = "0.8"
+notify = "6.1"
