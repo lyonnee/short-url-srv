@@ -20,7 +20,7 @@ pub async fn register_new(
     // let mut tx = db::begin_db_transaction().await;
 
     let salt_str = String::from_utf8_lossy(&salt);
-    user_repo::create_user( &mut *conn,email,phone, salt_str.to_string(),hashed_pwd).await;
+    let _ = user_repo::create_user( &mut *conn,email,phone, salt_str.to_string(),hashed_pwd).await;
 
     // let commit_res = tx.commit().await;
 

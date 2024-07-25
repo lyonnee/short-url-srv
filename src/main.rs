@@ -1,4 +1,4 @@
-use std::env::{self, Args};
+use std::env;
 
 mod api;
 mod dao;

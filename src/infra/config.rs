@@ -10,17 +10,17 @@ use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 use serde::Deserialize;
 
 lazy_static! {
-    static ref CONFIGS: Arc<RwLock<Option<Configs>>> = Arc::new(RwLock::new(None));
+    static ref CONFIGS: Arc<RwLock<Option<AppConfig>>> = Arc::new(RwLock::new(None));
 }
 
-pub fn get_configs() -> RwLockReadGuard<'static, Option<Configs>> {
+pub fn get_configs() -> RwLockReadGuard<'static, Option<AppConfig>> {
     let configs_guard = CONFIGS.read().unwrap();
     configs_guard
 }
 
 pub fn init(env: String) -> Result<(), confique::Error> {
-    let filepath = env + ".yaml";
-    let cfg: Configs = Configs::builder().file(&filepath).load()?;
+    let filepath = format!("{}.{}.{}","config", env, "yaml");
+    let cfg: AppConfig = AppConfig::builder().file(&filepath).load()?;
 
     let mut configs_lock = CONFIGS.write().unwrap();
     *configs_lock = Some(cfg);
@@ -59,7 +59,7 @@ pub fn watch(filepath: &str) {
                 ..
             })) => {
                 println!(" * config file written; refreshing configuration ...");
-                let res = Configs::builder().file(filepath).load();
+                let res = AppConfig::builder().file(filepath).load();
 
                 match res {
                     Ok(cfg) => {
@@ -82,29 +82,29 @@ pub fn watch(filepath: &str) {
 }
 
 
-#[derive(Config, Debug, Deserialize)]
+#[derive(confique::Config, Debug, Deserialize)]
 #[allow(unused)]
-pub struct Configs {
+pub struct AppConfig {
     pub http: Http,
     pub log: Log,
     pub database: Database,
 }
 
-#[derive(Config, Debug, Deserialize)]
+#[derive(confique::Config, Debug, Deserialize)]
 #[allow(unused)]
 pub struct Http {
     #[config(default = "0.0.0.0:10240")]
     pub addr: String,
 }
 
-#[derive(Config, Debug, Deserialize)]
+#[derive(confique::Config, Debug, Deserialize)]
 #[allow(unused)]
 pub struct Log {
     pub file: FileLog,
     pub stdout: Stdout,
 }
 
-#[derive(Config, Debug, Deserialize)]
+#[derive(confique::Config, Debug, Deserialize)]
 #[allow(unused)]
 pub struct FileLog {
     #[config(default = "true")]
@@ -117,7 +117,7 @@ pub struct FileLog {
     pub filename: String,
 }
 
-#[derive(Config, Debug, Deserialize)]
+#[derive(confique::Config, Debug, Deserialize)]
 #[allow(unused)]
 pub struct Stdout {
     #[config(default = "true")]
@@ -126,13 +126,13 @@ pub struct Stdout {
     pub level: String,
 }
 
-#[derive(Config, Debug, Deserialize)]
+#[derive(confique::Config, Debug, Deserialize)]
 #[allow(unused)]
 pub struct Database{
     pub mysql:Mysql,
 }
 
-#[derive(Config, Debug, Deserialize)]
+#[derive(confique::Config, Debug, Deserialize)]
 #[allow(unused)]
 pub struct Mysql {
     pub dsn: String,
