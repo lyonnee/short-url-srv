@@ -3,7 +3,7 @@ use axum::{
     Router,
 };
 
-use crate::api::{app_handler, shorten_handler, user_handler};
+use super::{app_handler, shorten_handler, user_handler};
 
 pub fn new() -> Router {
     let router = Router::new().nest(

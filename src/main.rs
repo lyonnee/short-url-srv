@@ -5,7 +5,7 @@ mod dao;
 mod infra;
 mod logic;
 mod repository;
-mod web_server;
+mod service;
 
 #[tokio::main]
 async fn main() {
@@ -18,7 +18,7 @@ async fn main() {
 
     infra::db::init().await;
 
-    web_server::service::build_and_run().await;
+    service::http::service::build_and_run().await;
 }
 
 fn get_env(args: &[String]) -> String {
