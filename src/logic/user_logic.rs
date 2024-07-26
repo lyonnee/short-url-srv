@@ -1,37 +1,36 @@
 use bcrypt::{DEFAULT_COST,hash_with_salt,verify};
 use rand::{RngCore,rngs::OsRng};
 
-use crate::{infra::db, repository::{user_repo}};
+use crate::{infra::db, repository::user_repo};
 
 pub async fn register_new(
     email: Option<String>,
     phone: Option<String>,
     password: String,
-) -> Result<(),String>{
-    let mut conn = db::get_db_conn().await;
-    let user = user_repo::find_user_by_phone_or_email(&mut *conn,email.clone(),phone.clone()).await;
+) -> Result<u64,String>{
+    let mut tx = db::begin_db_transaction().await;
+    let user = user_repo::find_user_by_phone_or_email(&mut *tx,email.clone(),phone.clone()).await;
     if let Some(_) = user{
+        let _ = tx.rollback().await;
         return  Err(String::from("email or phone has used"));
     }
 
     let salt =  generate_random_bytes();
     let hashed_pwd = hash_with_salt(password, DEFAULT_COST, salt).unwrap().to_string();
 
-    // let mut tx = db::begin_db_transaction().await;
 
     let salt_str = String::from_utf8_lossy(&salt);
-    let _ = user_repo::create_user( &mut *conn,email,phone, salt_str.to_string(),hashed_pwd).await;
+    let res = user_repo::create_user( &mut *tx,email,phone, salt_str.to_string(),hashed_pwd).await;
 
-    // let commit_res = tx.commit().await;
+    let commit_res = tx.commit().await;
 
-    // match commit_res{
-    //     Ok(_)=> Ok(()),
-    //     Err(err) => {
-    //         // todo: 记录失败原因日志
-    //         Err(String::from("register failed"))
-    //     },
-    // }
-    Ok(())
+    match commit_res{
+        Ok(_)=> Ok(res.unwrap()),
+        Err(err) => {
+            // todo: 记录失败原因日志
+            Err(err.to_string())
+        },
+    }
 }
 
 pub async fn login(

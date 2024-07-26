@@ -1,0 +1,3 @@
+# dao层
+INSERT / UPDATE / DELETE 操作返回Result
+QUERY 操作返回Option

@@ -34,14 +34,18 @@ pub async fn registration(Json(req): Json<RegistrationReq>) -> impl IntoResponse
         return Json(Response::fail(1, "password length too short".to_string()));
     }
 
-    let _ = user_logic::register_new(
+    let res = user_logic::register_new(
         req.email,
         req.phone,
         req.password,
     )
     .await;
 
-    Json(Response::ok(""))
+    match res {
+        Ok(id) => Json(Response::ok(id)),
+        Err(e) =>   Json(Response::fail(1, e))
+    }
+
 }
 
 pub async fn login(Json(req): Json<LoginReq>) -> impl IntoResponse {
