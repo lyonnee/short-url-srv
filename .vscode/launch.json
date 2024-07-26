@@ -6,7 +6,9 @@
             "type": "lldb",
             "request": "launch",
             "program": "${workspaceFolder}/target/debug/${workspaceFolderBasename}",
-            "args": ["dev"],
+            "args": [
+                "dev"
+            ],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "build"
         }
