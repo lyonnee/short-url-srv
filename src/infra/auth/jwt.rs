@@ -29,7 +29,8 @@ impl Claims {
     }
 }
 
-pub struct TokenPayload{
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TokenPayload {
     pub access_token: String,
     pub token_type: String,
 }
@@ -38,7 +39,7 @@ pub fn create_token(uid: usize) -> Result<TokenPayload, Error> {
     let encoding_key: EncodingKey = EncodingKey::from_secret("".as_bytes());
     let token = sign(uid, &encoding_key)?;
 
-    Ok(TokenPayload{
+    Ok(TokenPayload {
         access_token: token,
         token_type: "Bearer".to_string(),
     })

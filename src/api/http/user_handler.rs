@@ -40,5 +40,21 @@ pub async fn registration(Json(req): Json<RegistrationReq>) -> impl IntoResponse
 }
 
 pub async fn login(Json(req): Json<LoginReq>) -> impl IntoResponse {
-    Json(Response::ok(""))
+    if req.email == Option::None && req.phone == Option::None {
+        return Json(Response::fail(
+            1,
+            "password or email cannot both be empty".to_string(),
+        ));
+    }
+
+    if req.password.len() < 8 {
+        return Json(Response::fail(1, "password length too short".to_string()));
+    }
+
+    let res = user_logic::login(req.email, req.phone, req.password).await;
+
+    match res {
+        Ok(token) => Json(Response::ok(token)),
+        Err(e) => Json(Response::fail(1, e)),
+    }
 }
