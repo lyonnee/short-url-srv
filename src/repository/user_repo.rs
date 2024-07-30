@@ -15,7 +15,6 @@ pub async fn create_user<'e, E: sqlx::Executor<'e, Database = MySql>>(
 
     match res {
         Ok(res) => {
-            tracing::info!("inset res: {:?}", res);
             Ok(res.last_insert_id())
         }
         Err(err) => {

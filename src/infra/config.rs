@@ -19,17 +19,24 @@ pub fn get_configs() -> RwLockReadGuard<'static, Option<AppConfig>> {
 }
 
 pub fn init(env: String) -> Result<(), confique::Error> {
-    let filepath = format!("{}.{}.{}", "config", env, "yaml");
-    let cfg: AppConfig = AppConfig::builder().file(&filepath).load()?;
+    let filepath: String = format!("{}.{}.{}", "config", env, "yaml");
+    let res: Result<AppConfig, confique::Error> = AppConfig::builder().file(&filepath).load();
 
-    let mut configs_lock = CONFIGS.write().unwrap();
-    *configs_lock = Some(cfg);
+    match res {
+        Ok(cfg) => {
+            let mut configs_lock = CONFIGS.write().unwrap();
+            *configs_lock = Some(cfg);
 
-    tokio::spawn(async move { watch(&filepath) });
+            tokio::spawn(async move { watch(&filepath) });
 
-    tracing::info!("The config has been loaded!!!");
-
-    Ok(())
+            tracing::info!("The config has been loaded!!!");
+            Ok(())
+        },
+        Err(e) => {
+            tracing::error!("{e}");
+            Err(e)
+        }
+    }
 }
 
 pub fn watch(filepath: &str) {
@@ -87,6 +94,7 @@ pub struct AppConfig {
     pub http: Http,
     pub log: Log,
     pub database: Database,
+    pub auth: Auth,
 }
 
 #[derive(confique::Config, Debug, Deserialize)]
@@ -137,4 +145,19 @@ pub struct Mysql {
     pub dsn: String,
     #[config(default = 256)]
     pub max_conns: u32,
+}
+
+#[derive(confique::Config, Debug, Deserialize)]
+#[allow(unused)]
+pub struct Auth {
+    pub jwt: JWT,
+}
+
+#[derive(confique::Config, Debug, Deserialize)]
+#[allow(unused)]
+pub struct JWT {
+    pub encoding_key: String,
+    pub decoding_key: String,
+    pub issuer: String,
+    pub validity_period: i64,
 }

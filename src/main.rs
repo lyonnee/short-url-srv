@@ -12,7 +12,7 @@ async fn main() {
     let args: Vec<String> = env::args().collect();
 
     let env: String = get_env(&args);
-    let _ = infra::config::init(env);
+    let _res = infra::config::init(env).unwrap();
 
     let _guard = infra::logger::init();
 

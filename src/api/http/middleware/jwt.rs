@@ -13,6 +13,8 @@ use jsonwebtoken::{errors::Error, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
+use crate::infra::config;
+
 static KEYS: Lazy<Keys> = Lazy::new(|| Keys::new("".as_bytes(), "".as_bytes()));
 struct Keys {
     encoding: EncodingKey,
@@ -46,14 +48,17 @@ pub fn authorization(user_id: usize) -> Result<TokenPayload, Error> {
     let now = Utc::now();
     let iat: usize = now.timestamp() as usize;
 
-    let expire: chrono::TimeDelta = Duration::hours(24);
+    let lock_config = config::get_configs();
+    let config = lock_config.as_ref().unwrap();
+
+    let expire: chrono::TimeDelta = Duration::seconds(config.auth.jwt.validity_period);
     let exp: usize = (now + expire).timestamp() as usize;
 
     let claims = Claims {
         uid: user_id,
         iat,
         exp,
-        iss: String::from("auther"),
+        iss: config.auth.jwt.issuer.clone(),
     };
 
     let token = jsonwebtoken::encode(&Header::default(), &claims, &KEYS.encoding)?;
