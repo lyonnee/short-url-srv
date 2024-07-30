@@ -9,6 +9,6 @@ CREATE TABLE `short_urls`(
     PRIMARY KEY (`id`),
 
     UNIQUE INDEX `ux_short_key`(`short_key`) USING HASH COMMENT '短链接key索引',
-    INDEX `idx_app_id`(`app_id`) USING HASH COMMENT '应用id索引',
+    INDEX `idx_app_id`(`app_id`) USING BTREE COMMENT '应用id索引',
     INDEX `idx_origin_url`(`origin_url`) USING HASH COMMENT '源链接索引'
 )

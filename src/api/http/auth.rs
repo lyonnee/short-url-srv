@@ -19,7 +19,7 @@ pub struct LoginReq {
     pub password: String,
 }
 
-pub async fn registration(Json(req): Json<RegistrationReq>) -> impl IntoResponse {
+pub async fn register(Json(req): Json<RegistrationReq>) -> impl IntoResponse {
     if req.email == Option::None && req.phone == Option::None {
         return Json(Response::fail(
             1,
@@ -55,7 +55,7 @@ pub async fn login(Json(req): Json<LoginReq>) -> impl IntoResponse {
 
     match res {
         Ok(user_id) =>{
-            let create_jwt_res = middleware::jwt::authorization(user_id,0);
+            let create_jwt_res = middleware::jwt::authorization(user_id);
             Json(Response::ok(create_jwt_res.unwrap()))
         } ,
         Err(e) => Json(Response::fail(1, e)),

@@ -4,7 +4,7 @@ CREATE TABLE `apps` (
     `app_name` varchar(20) NOT NULL COMMENT '应用名',
     `create_at` int NOT NULL COMMENT '创建时间',
     `update_at` int NOT NULL COMMENT '更新时间',
-     PRIMARY KEY(`id`),
+    PRIMARY KEY(`id`),
 
-    UNIQUE INDEX `ux_user_id`(`user_id`) USING HASH COMMENT '用户id索引'
+    INDEX `idx_user_id` (`user_id`) USING BTREE COMMENT '用户id索引'
 )

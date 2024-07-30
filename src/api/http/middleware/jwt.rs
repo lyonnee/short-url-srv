@@ -4,11 +4,13 @@ use once_cell::sync::Lazy;
 use axum::{
     extract::Request,
     http::{self, StatusCode},
-    middleware::Next,
-    response::Response,
+    middleware::Next, Json,
 };
 use jsonwebtoken::{errors::Error, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
+
+use crate::api::http::response::Response;
 
 static KEYS: Lazy<Keys> = Lazy::new(|| Keys::new("".as_bytes(), "".as_bytes()));
 struct Keys {
@@ -30,7 +32,6 @@ pub struct Claims {
     pub uid: usize,  // user id
     pub iat: usize,  // Issued at (as UTC timestamp)
     pub exp: usize, // Required (validate_exp defaults to true in validation). Expiration time (as UTC timestamp)
-    pub jti: usize, // Optional. jwt id
     pub iss: String, // Optional. Issuer
 }
 
@@ -40,7 +41,7 @@ pub struct TokenPayload {
     pub token_type: String,
 }
 
-pub fn authorization(user_id: usize, token_id: usize) -> Result<TokenPayload, Error> {
+pub fn authorization(user_id: usize) -> Result<TokenPayload, Error> {
     let now = Utc::now();
     let iat: usize = now.timestamp() as usize;
 
@@ -51,7 +52,6 @@ pub fn authorization(user_id: usize, token_id: usize) -> Result<TokenPayload, Er
         uid: user_id,
         iat,
         exp,
-        jti: token_id,
         iss: String::from("auther"),
     };
 
@@ -63,29 +63,61 @@ pub fn authorization(user_id: usize, token_id: usize) -> Result<TokenPayload, Er
     })
 }
 
-pub(crate) async fn authentication(mut req: Request, next: Next) -> Result<Response, StatusCode> {
-    let auth_header = req
-        .headers()
-        .get(http::header::AUTHORIZATION)
-        .and_then(|header| header.to_str().ok());
+pub struct AuthError {
+    message: String,
+    status_code: StatusCode,
+}
 
-    let auth_header = if let Some(auth_header) = auth_header {
-        auth_header
-    } else {
-        return Err(StatusCode::UNAUTHORIZED);
+impl axum::response::IntoResponse for AuthError {
+    fn into_response(self) -> axum::http::Response<axum::body::Body> {
+        let body = Json(json!({
+            "error": self.message,
+        }));
+
+        (self.status_code, body).into_response()
+    }
+}
+
+pub(crate) async fn authentication(mut req: Request, next: Next) -> Result<axum::http::Response<axum::body::Body>, AuthError> {
+    let auth_header = req.headers_mut().get(http::header::AUTHORIZATION);
+    let auth_header = match auth_header {
+        Some(header) => header.to_str().map_err(|_| AuthError {
+            message: "Empty header is not allowed".to_string(),
+            status_code: StatusCode::FORBIDDEN
+        })?,
+        None => return Err(AuthError {
+            message: "Please add the JWT token to the header".to_string(),
+            status_code: StatusCode::FORBIDDEN
+        }),
     };
 
-    let verify_res = jsonwebtoken::decode(auth_header, &KEYS.decoding, &Validation::default())
+    let mut header = auth_header.split_whitespace();
+    let (_bearer, token) = (header.next(), header.next());
+
+    let verify_res = jsonwebtoken::decode(token.unwrap(), &KEYS.decoding, &Validation::default())
         .map(|data: jsonwebtoken::TokenData<Claims>| data.claims);
 
     match verify_res {
         Ok(claims) => {
+            let now = Utc::now().timestamp() as usize;
+
+            if claims.iat > now {
+
+            }
+
+            if claims.exp < now {
+                
+            }
+
             req.extensions_mut().insert(claims);
             Ok(next.run(req).await)
         }
         Err(e) => {
             tracing::error!("{}", e);
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
+            Err(AuthError {
+                message: "Unable to decode token".to_string(),
+                status_code: StatusCode::UNAUTHORIZED
+            })
         }
     }
 }

@@ -3,7 +3,7 @@ use axum::{
 };
 use tower_http::trace::TraceLayer;
 
-use super::{app_handler, middleware, shorten_handler, user_handler};
+use super::{app_handler, middleware, shorten_handler, auth};
 
 pub fn new() -> Router {
     let router = Router::new()
@@ -13,8 +13,8 @@ pub fn new() -> Router {
                 .nest(
                     "/user",
                     Router::new()
-                        .route("/signup", post(user_handler::registration))
-                        .route("/login", post(user_handler::login)),
+                        .route("/signup", post(auth::register))
+                        .route("/login", post(auth::login)),
                 )
                 .nest(
                     "/app",
