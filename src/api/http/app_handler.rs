@@ -1,14 +1,17 @@
-use axum::{
-    extract::Json,
-    response::IntoResponse,
+use axum::{extract::Json, response::IntoResponse, Extension};
+use axum_extra::{
+    headers::{authorization::Bearer, Authorization},
+    TypedHeader,
 };
 use serde::{Deserialize, Serialize};
 
-use super::response::Response;
+use crate::{ logic::app_logic};
+
+use super::{middleware::jwt::Claims, response::Response};
 
 #[derive(Deserialize)]
 pub struct CreateAppReq {
-    pub app_name: String,
+    pub app_name: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -17,7 +20,20 @@ pub struct CreateAppResp {
 }
 
 pub async fn create_app(
+    Extension(user): Extension<Claims>,
     Json(req): Json<CreateAppReq>,
 ) -> impl IntoResponse {
-    Json(Response::ok(""))
+    if req.app_name == Option::None {
+        return Json(Response::fail(
+            1,
+            "password or email cannot both be empty".to_string(),
+        ));
+    }
+
+    let res = app_logic::create_app(user.uid, req.app_name.unwrap()).await;
+
+    match res {
+        Ok(id) => Json(Response::ok(id)),
+        Err(e) => Json(Response::fail(1, e)),
+    }
 }

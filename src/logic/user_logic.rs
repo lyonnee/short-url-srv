@@ -4,10 +4,7 @@ use bcrypt::{hash_with_salt, verify, DEFAULT_COST};
 use rand::{rngs::OsRng, RngCore};
 
 use crate::{
-    infra::{
-        auth::jwt::{self, TokenPayload},
-        db,
-    },
+    infra:: db,
     repository::user_repo,
 };
 
@@ -47,7 +44,7 @@ pub async fn login(
     email: Option<String>,
     phone: Option<String>,
     password: String,
-) -> Result<TokenPayload, String> {
+) -> Result<usize, String> {
     let mut conn = db::get_db_conn().await;
     let res = user_repo::find_user_by_phone_or_email(&mut *conn, email, phone).await;
 
@@ -59,14 +56,7 @@ pub async fn login(
             match verify_res {
                 Ok(pass) => match pass {
                     true => {
-                        let create_jwt_res = jwt::create_token(user.id.unwrap() as usize);
-                        match create_jwt_res {
-                            Ok(token) => Ok(token),
-                            Err(e) => {
-                                tracing::error!("{}", e);
-                                Err(format!("{}", e))
-                            }
-                        }
+                        Ok(user.id.unwrap() as usize)
                     }
                     false => Err(String::from("the password is incorrect")),
                 },

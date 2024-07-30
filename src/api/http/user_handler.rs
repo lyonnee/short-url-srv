@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 use crate::logic::user_logic;
 
-use super::response::Response;
+use super::{middleware, response::Response};
 
 #[derive(Deserialize)]
 pub struct RegistrationReq {
@@ -54,7 +54,10 @@ pub async fn login(Json(req): Json<LoginReq>) -> impl IntoResponse {
     let res = user_logic::login(req.email, req.phone, req.password).await;
 
     match res {
-        Ok(token) => Json(Response::ok(token)),
+        Ok(user_id) =>{
+            let create_jwt_res = middleware::jwt::authorization(user_id,0);
+            Json(Response::ok(create_jwt_res.unwrap()))
+        } ,
         Err(e) => Json(Response::fail(1, e)),
     }
 }

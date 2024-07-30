@@ -1,12 +1,9 @@
 use axum::{
-    extract::MatchedPath,
-    http::Request,
-    routing::{get, post},
-    Router,
+    extract::MatchedPath, http::Request,  routing::{get, post}, Router
 };
 use tower_http::trace::TraceLayer;
 
-use super::{app_handler, shorten_handler, user_handler};
+use super::{app_handler, middleware, shorten_handler, user_handler};
 
 pub fn new() -> Router {
     let router = Router::new()
@@ -21,7 +18,7 @@ pub fn new() -> Router {
                 )
                 .nest(
                     "/app",
-                    Router::new().route("/create", post(app_handler::create_app)),
+                    Router::new().route("/create", post(app_handler::create_app)).layer(axum::middleware::from_fn(middleware::jwt::authentication)),
                 )
                 .nest(
                     "",
