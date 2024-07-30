@@ -2,15 +2,11 @@ use chrono::{Duration, Utc};
 use once_cell::sync::Lazy;
 
 use axum::{
-    extract::Request,
-    http::{self, StatusCode},
-    middleware::Next, Json,
+    body::Body, extract::Request, http::{self, StatusCode}, middleware::Next, response::{IntoResponse, Response}, Json
 };
 use jsonwebtoken::{errors::Error, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-
-use crate::api::http::response::Response;
 
 static KEYS: Lazy<Keys> = Lazy::new(|| Keys::new("".as_bytes(), "".as_bytes()));
 struct Keys {
@@ -68,8 +64,8 @@ pub struct AuthError {
     status_code: StatusCode,
 }
 
-impl axum::response::IntoResponse for AuthError {
-    fn into_response(self) -> axum::http::Response<axum::body::Body> {
+impl IntoResponse for AuthError {
+    fn into_response(self) -> Response<Body> {
         let body = Json(json!({
             "error": self.message,
         }));
@@ -78,7 +74,7 @@ impl axum::response::IntoResponse for AuthError {
     }
 }
 
-pub(crate) async fn authentication(mut req: Request, next: Next) -> Result<axum::http::Response<axum::body::Body>, AuthError> {
+pub(crate) async fn authentication(mut req: Request, next: Next) -> Result<Response<Body>, AuthError> {
     let auth_header = req.headers_mut().get(http::header::AUTHORIZATION);
     let auth_header = match auth_header {
         Some(header) => header.to_str().map_err(|_| AuthError {
