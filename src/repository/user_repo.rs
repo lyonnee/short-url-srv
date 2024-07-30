@@ -14,9 +14,7 @@ pub async fn create_user<'e, E: sqlx::Executor<'e, Database = MySql>>(
     let res = user_dao::insert_user(executor, email, phone, salt, ciphertext, now, now).await;
 
     match res {
-        Ok(res) => {
-            Ok(res.last_insert_id())
-        }
+        Ok(res) => Ok(res.last_insert_id()),
         Err(err) => {
             tracing::error!("{err}");
             Err(err.to_string())

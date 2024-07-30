@@ -15,7 +15,15 @@ use serde_json::json;
 
 use crate::infra::config;
 
-static KEYS: Lazy<Keys> = Lazy::new(|| Keys::new("".as_bytes(), "".as_bytes()));
+static KEYS: Lazy<Keys> = Lazy::new(|| {
+    let lock_config = config::get_configs();
+    let config = lock_config.as_ref().unwrap();
+
+    Keys::new(
+        config.auth.jwt.encoding_key.as_bytes(),
+        config.auth.jwt.decoding_key.as_bytes(),
+    )
+});
 struct Keys {
     encoding: EncodingKey,
     decoding: DecodingKey,

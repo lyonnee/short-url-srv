@@ -1,7 +1,4 @@
-use crate::{
-    infra::db,
-    repository::app_repo,
-};
+use crate::{infra::db, repository::app_repo};
 
 pub async fn create_app(user_id: usize, name: String) -> Result<u64, String> {
     let mut tx = db::begin_db_transaction().await;

@@ -31,7 +31,7 @@ pub fn init(env: String) -> Result<(), confique::Error> {
 
             tracing::info!("The config has been loaded!!!");
             Ok(())
-        },
+        }
         Err(e) => {
             tracing::error!("{e}");
             Err(e)
