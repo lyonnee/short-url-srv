@@ -1,11 +1,9 @@
 use crate::{
-    infra::{db, utils::time},
+    infra::db,
     repository::app_repo,
 };
 
 pub async fn create_app(user_id: usize, name: String) -> Result<u64, String> {
-    let app_id = time::timestamp_millis();
-
     let mut tx = db::begin_db_transaction().await;
     let res = app_repo::create_app(&mut *tx, user_id, name).await;
 

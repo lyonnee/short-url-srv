@@ -19,7 +19,7 @@ pub fn get_configs() -> RwLockReadGuard<'static, Option<AppConfig>> {
 }
 
 pub fn init(env: String) -> Result<(), confique::Error> {
-    let filepath = format!("{}.{}.{}","config", env, "yaml");
+    let filepath = format!("{}.{}.{}", "config", env, "yaml");
     let cfg: AppConfig = AppConfig::builder().file(&filepath).load()?;
 
     let mut configs_lock = CONFIGS.write().unwrap();
@@ -81,7 +81,6 @@ pub fn watch(filepath: &str) {
     }
 }
 
-
 #[derive(confique::Config, Debug, Deserialize)]
 #[allow(unused)]
 pub struct AppConfig {
@@ -128,8 +127,8 @@ pub struct Stdout {
 
 #[derive(confique::Config, Debug, Deserialize)]
 #[allow(unused)]
-pub struct Database{
-    pub mysql:Mysql,
+pub struct Database {
+    pub mysql: Mysql,
 }
 
 #[derive(confique::Config, Debug, Deserialize)]

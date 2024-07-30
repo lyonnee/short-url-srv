@@ -1,11 +1,7 @@
 use axum::{extract::Json, response::IntoResponse, Extension};
-use axum_extra::{
-    headers::{authorization::Bearer, Authorization},
-    TypedHeader,
-};
 use serde::{Deserialize, Serialize};
 
-use crate::{ logic::app_logic};
+use crate::logic::app_logic;
 
 use super::{middleware::jwt::Claims, response::Response};
 

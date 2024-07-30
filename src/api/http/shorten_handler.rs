@@ -17,14 +17,10 @@ pub struct ShortenResp {
     short_key: String,
 }
 
-pub async fn shorten(
-    Json(req): Json<ShortenReq>,
-) -> impl IntoResponse {
+pub async fn shorten(Json(req): Json<ShortenReq>) -> impl IntoResponse {
     Json(Response::ok(req.original_url.to_uppercase()))
 }
 
-pub async fn redirect(
-    Path(short_key): Path<String>,
-) -> impl IntoResponse {
+pub async fn redirect(Path(short_key): Path<String>) -> impl IntoResponse {
     Json(Response::ok(short_key.to_uppercase()))
 }

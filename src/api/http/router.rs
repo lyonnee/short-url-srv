@@ -1,11 +1,18 @@
 use axum::{
-    extract::MatchedPath, http::Request,  routing::{get, post}, Router
+    routing::{get, post},
+    Router,
 };
-use tower_http::trace::TraceLayer;
+use tower_http::trace::{self, TraceLayer};
+use tracing::Level;
 
-use super::{app_handler, middleware, shorten_handler, auth};
+use super::{app_handler, auth, middleware, shorten_handler};
 
 pub fn new() -> Router {
+    let trace_layer = TraceLayer::new_for_http()
+        .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
+        .on_request(trace::DefaultOnRequest::new().level(Level::INFO))
+        .on_response(trace::DefaultOnResponse::new().level(Level::INFO));
+
     let router = Router::new()
         .nest(
             "/api",
@@ -18,7 +25,9 @@ pub fn new() -> Router {
                 )
                 .nest(
                     "/app",
-                    Router::new().route("/create", post(app_handler::create_app)).layer(axum::middleware::from_fn(middleware::jwt::authentication)),
+                    Router::new()
+                        .route("/create", post(app_handler::create_app))
+                        .layer(axum::middleware::from_fn(middleware::jwt::authentication)),
                 )
                 .nest(
                     "",
@@ -27,23 +36,7 @@ pub fn new() -> Router {
                         .route("/:key", get(shorten_handler::redirect)),
                 ),
         )
-        .layer(
-            TraceLayer::new_for_http().make_span_with(|request: &Request<_>| {
-                // Log the matched route's path (with placeholders not filled in).
-                // Use request.uri() or OriginalUri if you want the real path.
-                let matched_path = request
-                    .extensions()
-                    .get::<MatchedPath>()
-                    .map(MatchedPath::as_str);
-
-                tracing::info_span!(
-                    "http_request",
-                    method = ?request.method(),
-                    matched_path,
-                    some_other_field = tracing::field::Empty,
-                )
-            }),
-        );
+        .layer(trace_layer);
 
     return router;
 }

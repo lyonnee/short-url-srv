@@ -1,12 +1,7 @@
-use std::fmt::format;
-
 use bcrypt::{hash_with_salt, verify, DEFAULT_COST};
 use rand::{rngs::OsRng, RngCore};
 
-use crate::{
-    infra:: db,
-    repository::user_repo,
-};
+use crate::{infra::db, repository::user_repo};
 
 pub async fn register_new(
     email: Option<String>,
@@ -55,9 +50,7 @@ pub async fn login(
             let verify_res = verify(password, &hash);
             match verify_res {
                 Ok(pass) => match pass {
-                    true => {
-                        Ok(user.id.unwrap() as usize)
-                    }
+                    true => Ok(user.id.unwrap() as usize),
                     false => Err(String::from("the password is incorrect")),
                 },
                 Err(e) => {

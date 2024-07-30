@@ -14,7 +14,11 @@ pub async fn init() {
     let lock_config = config::get_configs();
     let config = lock_config.as_ref().unwrap();
 
-    if sqlx::MySql::database_exists(&config.database.mysql.dsn).await.unwrap_or(false) == false {}
+    if sqlx::MySql::database_exists(&config.database.mysql.dsn)
+        .await
+        .unwrap_or(false)
+        == false
+    {}
 
     let db = MySqlPoolOptions::new()
         .max_connections(config.database.mysql.max_conns)

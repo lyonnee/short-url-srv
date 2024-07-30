@@ -11,7 +11,10 @@ pub async fn build_and_run() {
 
     let listener = TcpListener::bind(&config.http.addr).await.unwrap();
 
-    tracing::info!("The web server has already running, addr: {}",&config.http.addr);
+    tracing::info!(
+        "The web server has already running, addr: {}",
+        &config.http.addr
+    );
 
     axum::serve(listener, app).await.unwrap();
 }

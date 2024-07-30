@@ -2,7 +2,12 @@ use chrono::{Duration, Utc};
 use once_cell::sync::Lazy;
 
 use axum::{
-    body::Body, extract::Request, http::{self, StatusCode}, middleware::Next, response::{IntoResponse, Response}, Json
+    body::Body,
+    extract::Request,
+    http::{self, StatusCode},
+    middleware::Next,
+    response::{IntoResponse, Response},
+    Json,
 };
 use jsonwebtoken::{errors::Error, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
@@ -74,17 +79,22 @@ impl IntoResponse for AuthError {
     }
 }
 
-pub(crate) async fn authentication(mut req: Request, next: Next) -> Result<Response<Body>, AuthError> {
+pub(crate) async fn authentication(
+    mut req: Request,
+    next: Next,
+) -> Result<Response<Body>, AuthError> {
     let auth_header = req.headers_mut().get(http::header::AUTHORIZATION);
     let auth_header = match auth_header {
         Some(header) => header.to_str().map_err(|_| AuthError {
             message: "Empty header is not allowed".to_string(),
-            status_code: StatusCode::FORBIDDEN
+            status_code: StatusCode::FORBIDDEN,
         })?,
-        None => return Err(AuthError {
-            message: "Please add the JWT token to the header".to_string(),
-            status_code: StatusCode::FORBIDDEN
-        }),
+        None => {
+            return Err(AuthError {
+                message: "Please add the JWT token to the header".to_string(),
+                status_code: StatusCode::FORBIDDEN,
+            })
+        }
     };
 
     let mut header = auth_header.split_whitespace();
@@ -97,13 +107,9 @@ pub(crate) async fn authentication(mut req: Request, next: Next) -> Result<Respo
         Ok(claims) => {
             let now = Utc::now().timestamp() as usize;
 
-            if claims.iat > now {
+            if claims.iat > now {}
 
-            }
-
-            if claims.exp < now {
-                
-            }
+            if claims.exp < now {}
 
             req.extensions_mut().insert(claims);
             Ok(next.run(req).await)
@@ -112,7 +118,7 @@ pub(crate) async fn authentication(mut req: Request, next: Next) -> Result<Respo
             tracing::error!("{}", e);
             Err(AuthError {
                 message: "Unable to decode token".to_string(),
-                status_code: StatusCode::UNAUTHORIZED
+                status_code: StatusCode::UNAUTHORIZED,
             })
         }
     }

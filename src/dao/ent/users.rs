@@ -7,6 +7,6 @@ pub struct User {
     pub phone: Option<String>,
     pub salt: Option<String>,
     pub ciphertext: Option<String>,
-    pub create_at:Option<i32>,
-    pub update_at:Option<i32>,
+    pub create_at: Option<i32>,
+    pub update_at: Option<i32>,
 }

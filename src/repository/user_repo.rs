@@ -1,9 +1,7 @@
+use chrono::Utc;
 use sqlx::MySql;
 
-use crate::{
-    dao::{ent::users::User, user_dao},
-    infra::utils::time,
-};
+use crate::dao::{ent::users::User, user_dao};
 
 pub async fn create_user<'e, E: sqlx::Executor<'e, Database = MySql>>(
     executor: E,
@@ -12,7 +10,7 @@ pub async fn create_user<'e, E: sqlx::Executor<'e, Database = MySql>>(
     salt: String,
     ciphertext: String,
 ) -> Result<u64, String> {
-    let now = time::timestamp_secs();
+    let now = Utc::now().timestamp() as u64;
     let res = user_dao::insert_user(executor, email, phone, salt, ciphertext, now, now).await;
 
     match res {
