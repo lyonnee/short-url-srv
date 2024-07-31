@@ -8,8 +8,8 @@ pub async fn insert_user<'e, E: sqlx::Executor<'e, Database = MySql>>(
     phone: Option<String>,
     salt: String,
     ciphertext: String,
-    create_time: u64,
-    update_time: u64,
+    create_time: i32,
+    update_time: i32,
 ) -> Result<sqlx::mysql::MySqlQueryResult, sqlx::Error> {
     sqlx::query(
         "INSERT INTO users (email,phone,salt,ciphertext,create_at,update_at) VALUES (?,?,?,?,?,?);",

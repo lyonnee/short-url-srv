@@ -26,13 +26,13 @@ pub fn new() -> Router {
                 .nest(
                     "/app",
                     Router::new()
-                        .route("/create", post(app_handler::create_app))
-                        .layer(axum::middleware::from_fn(middleware::jwt::authentication)),
+                        .route("/", post(app_handler::create_app)).layer(axum::middleware::from_fn(middleware::jwt::authentication))
+                        .route("/list/:page/:size", get(app_handler::get_app_list)).layer(axum::middleware::from_fn(middleware::jwt::authentication)),
                 )
                 .nest(
                     "",
                     Router::new()
-                        .route("/shorten", post(shorten_handler::shorten))
+                        .route("/shorten", post(shorten_handler::shorten)).layer(axum::middleware::from_fn(middleware::jwt::authentication))
                         .route("/:key", get(shorten_handler::redirect)),
                 ),
         )

@@ -1,4 +1,4 @@
-use axum::{extract::Json, response::IntoResponse, Extension};
+use axum::{extract::{Json, Path}, response::IntoResponse, Extension};
 use serde::{Deserialize, Serialize};
 
 use crate::logic::app_logic;
@@ -26,10 +26,32 @@ pub async fn create_app(
         ));
     }
 
-    let res = app_logic::create_app(user.uid, req.app_name.unwrap()).await;
+    let res = app_logic::create_app(user.uid as i64, req.app_name.unwrap()).await;
 
     match res {
         Ok(id) => Json(Response::ok(id)),
         Err(e) => Json(Response::fail(1, e)),
     }
+}
+
+#[derive(Serialize)]
+pub struct App{
+    pub id: i64,
+    pub name: String,
+    pub create_at: i32,
+}
+pub async fn get_app_list( Extension(user): Extension<Claims>, Path((page,size)): Path<(i32,i32)>) -> impl IntoResponse {
+    let res = app_logic::get_user_app_list(user.uid as i64, page, size).await;
+
+    let mut app_list = Vec::new();
+    match res{
+        Some(apps) => {
+            for app in apps.into_iter() {
+                app_list.push(App{id:app.id.unwrap(),name:app.app_name,create_at:app.create_at.unwrap()})
+            }
+            
+        },
+        None => (),
+    }
+    Json(Response::ok(app_list))
 }

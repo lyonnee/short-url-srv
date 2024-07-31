@@ -9,7 +9,7 @@ pub async fn register_new(
     password: String,
 ) -> Result<u64, String> {
     let mut tx = db::begin_db_transaction().await;
-    let user = user_repo::find_user_by_phone_or_email(&mut *tx, email.clone(), phone.clone()).await;
+    let user = user_repo::get_user_by_phone_or_email(&mut *tx, email.clone(), phone.clone()).await;
     if let Some(_) = user {
         let _ = tx.rollback().await;
         return Err(String::from("email or phone has used"));
@@ -41,7 +41,7 @@ pub async fn login(
     password: String,
 ) -> Result<usize, String> {
     let mut conn = db::get_db_conn().await;
-    let res = user_repo::find_user_by_phone_or_email(&mut *conn, email, phone).await;
+    let res = user_repo::get_user_by_phone_or_email(&mut *conn, email, phone).await;
 
     match res {
         Some(user) => {
