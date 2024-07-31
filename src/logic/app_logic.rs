@@ -2,7 +2,7 @@ use crate::{dao::ent, infra::db, repository::app_repo};
 
 pub async fn create_app(user_id: i64, name: String) -> Result<u64, String> {
     let mut tx = db::begin_db_transaction().await;
-    let res = app_repo::create_app(&mut *tx, user_id, name).await;
+    let res = app_repo::save_new_app(&mut *tx, user_id, name).await;
 
     let commit_res = tx.commit().await;
 

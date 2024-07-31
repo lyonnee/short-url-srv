@@ -3,7 +3,7 @@ use sqlx::MySql;
 
 use crate::dao::{ent::users::User, user_dao};
 
-pub async fn create_user<'e, E: sqlx::Executor<'e, Database = MySql>>(
+pub async fn save_new_user<'e, E: sqlx::Executor<'e, Database = MySql>>(
     executor: E,
     email: Option<String>,
     phone: Option<String>,

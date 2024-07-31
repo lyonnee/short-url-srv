@@ -14,6 +14,7 @@ pub fn new() -> Router {
         .on_response(trace::DefaultOnResponse::new().level(Level::INFO));
 
     let router = Router::new()
+        .route("/:key", get(shorten_handler::redirect))
         .nest(
             "/api",
             Router::new()
@@ -26,14 +27,16 @@ pub fn new() -> Router {
                 .nest(
                     "/app",
                     Router::new()
-                        .route("/", post(app_handler::create_app)).layer(axum::middleware::from_fn(middleware::jwt::authentication))
-                        .route("/list/:page/:size", get(app_handler::get_app_list)).layer(axum::middleware::from_fn(middleware::jwt::authentication)),
+                        .route("/", post(app_handler::create_app))
+                        .layer(axum::middleware::from_fn(middleware::jwt::authentication))
+                        .route("/list/:page/:size", get(app_handler::get_app_list))
+                        .layer(axum::middleware::from_fn(middleware::jwt::authentication)),
                 )
                 .nest(
                     "",
                     Router::new()
-                        .route("/shorten", post(shorten_handler::shorten)).layer(axum::middleware::from_fn(middleware::jwt::authentication))
-                        .route("/:key", get(shorten_handler::redirect)),
+                        .route("/shorten", post(shorten_handler::shorten))
+                        .layer(axum::middleware::from_fn(middleware::jwt::authentication)),
                 ),
         )
         .layer(trace_layer);

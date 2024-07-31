@@ -22,7 +22,7 @@ pub async fn register_new(
 
     let salt_str = String::from_utf8_lossy(&salt);
     let res =
-        user_repo::create_user(&mut *tx, email, phone, salt_str.to_string(), hashed_pwd).await;
+        user_repo::save_new_user(&mut *tx, email, phone, salt_str.to_string(), hashed_pwd).await;
 
     let commit_res = tx.commit().await;
 
