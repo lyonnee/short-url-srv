@@ -28,9 +28,9 @@ pub async fn register_new(
 
     match commit_res {
         Ok(_) => Ok(res.unwrap()),
-        Err(err) => {
-            // todo: 记录失败原因日志
-            Err(err.to_string())
+        Err(e) => {
+            tracing::error!("{}", e);
+            Err(e.to_string())
         }
     }
 }

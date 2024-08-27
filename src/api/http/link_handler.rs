@@ -1,18 +1,14 @@
 use axum::{
     extract::{Json, Path},
-    handler::Handler,
     response::{IntoResponse, Redirect},
     Extension,
 };
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 
-use crate::logic::short_url_logic;
+use crate::logic::link_logic;
 
-use super::{
-    middleware::jwt::Claims,
-    response::{self, Response},
-};
+use super::{middleware::jwt::Claims, response::Response};
 
 #[derive(Deserialize)]
 pub struct ShortenReq {
@@ -30,8 +26,7 @@ pub async fn shorten(
     Extension(user): Extension<Claims>,
     Json(req): Json<ShortenReq>,
 ) -> impl IntoResponse {
-    let res =
-        short_url_logic::create_short_url(user.uid as i64, req.app_id, req.original_url).await;
+    let res = link_logic::create_link(user.uid as i64, req.app_id, req.original_url).await;
     match res {
         Ok(id) => Json(Response::ok(id)),
         Err(e) => Json(Response::fail(1, e)),
@@ -39,11 +34,11 @@ pub async fn shorten(
 }
 
 pub async fn redirect(Path(short_key): Path<String>) -> impl IntoResponse {
-    let res = short_url_logic::get_origin_url_by_key(short_key).await;
+    let res = link_logic::get_link_by_short_key(short_key).await;
 
     match res {
-        Some(short_url) => {
-            let redirect = Redirect::to(&short_url.origin_url);
+        Some(link) => {
+            let redirect = Redirect::to(&link.long_url);
             return redirect.into_response();
         }
         None => {

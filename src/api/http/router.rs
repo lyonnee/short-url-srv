@@ -5,7 +5,7 @@ use axum::{
 use tower_http::trace::{self, TraceLayer};
 use tracing::Level;
 
-use super::{app_handler, auth, middleware, shorten_handler};
+use super::{app_handler, auth_handler, link_handler, middleware};
 
 pub fn new() -> Router {
     let trace_layer = TraceLayer::new_for_http()
@@ -14,15 +14,15 @@ pub fn new() -> Router {
         .on_response(trace::DefaultOnResponse::new().level(Level::INFO));
 
     let router = Router::new()
-        .route("/:key", get(shorten_handler::redirect))
+        .route("/:key", get(link_handler::redirect))
         .nest(
             "/api",
             Router::new()
                 .nest(
                     "/user",
                     Router::new()
-                        .route("/signup", post(auth::register))
-                        .route("/login", post(auth::login)),
+                        .route("/signup", post(auth_handler::register))
+                        .route("/login", post(auth_handler::login)),
                 )
                 .nest(
                     "/app",
@@ -35,7 +35,7 @@ pub fn new() -> Router {
                 .nest(
                     "",
                     Router::new()
-                        .route("/shorten", post(shorten_handler::shorten))
+                        .route("/shorten", post(link_handler::shorten))
                         .layer(axum::middleware::from_fn(middleware::jwt::authentication)),
                 ),
         )
