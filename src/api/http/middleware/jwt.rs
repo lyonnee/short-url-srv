@@ -20,8 +20,8 @@ static KEYS: Lazy<Keys> = Lazy::new(|| {
     let config = lock_config.as_ref().unwrap();
 
     Keys::new(
-        config.auth.jwt.encoding_key.as_bytes(),
-        config.auth.jwt.decoding_key.as_bytes(),
+        config.http.auth.jwt.encoding_key.as_bytes(),
+        config.http.auth.jwt.decoding_key.as_bytes(),
     )
 });
 struct Keys {
@@ -59,14 +59,14 @@ pub fn authorization(user_id: usize) -> Result<TokenPayload, Error> {
     let lock_config = config::get_configs();
     let config = lock_config.as_ref().unwrap();
 
-    let expire: chrono::TimeDelta = Duration::seconds(config.auth.jwt.validity_period);
+    let expire: chrono::TimeDelta = Duration::seconds(config.http.auth.jwt.validity_period);
     let exp: usize = (now + expire).timestamp() as usize;
 
     let claims = Claims {
         uid: user_id,
         iat,
         exp,
-        iss: config.auth.jwt.issuer.clone(),
+        iss: config.http.auth.jwt.issuer.clone(),
     };
 
     let token = jsonwebtoken::encode(&Header::default(), &claims, &KEYS.encoding)?;

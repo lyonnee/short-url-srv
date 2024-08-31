@@ -94,7 +94,6 @@ pub struct AppConfig {
     pub http: Http,
     pub log: Log,
     pub database: Database,
-    pub auth: Auth,
 }
 
 #[derive(confique::Config, Debug, Deserialize)]
@@ -102,6 +101,22 @@ pub struct AppConfig {
 pub struct Http {
     #[config(default = "0.0.0.0:10240")]
     pub addr: String,
+    pub auth: Auth,
+}
+
+#[derive(confique::Config, Debug, Deserialize)]
+#[allow(unused)]
+pub struct Auth {
+    pub jwt: JWT,
+}
+
+#[derive(confique::Config, Debug, Deserialize)]
+#[allow(unused)]
+pub struct JWT {
+    pub encoding_key: String,
+    pub decoding_key: String,
+    pub issuer: String,
+    pub validity_period: i64,
 }
 
 #[derive(confique::Config, Debug, Deserialize)]
@@ -145,19 +160,4 @@ pub struct Mysql {
     pub dsn: String,
     #[config(default = 256)]
     pub max_conns: u32,
-}
-
-#[derive(confique::Config, Debug, Deserialize)]
-#[allow(unused)]
-pub struct Auth {
-    pub jwt: JWT,
-}
-
-#[derive(confique::Config, Debug, Deserialize)]
-#[allow(unused)]
-pub struct JWT {
-    pub encoding_key: String,
-    pub decoding_key: String,
-    pub issuer: String,
-    pub validity_period: i64,
 }

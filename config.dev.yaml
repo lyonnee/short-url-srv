@@ -1,6 +1,13 @@
 http:
   addr: 0.0.0.0:10240
 
+  auth:
+    jwt:
+      encoding_key: secret_key
+      decoding_key: secret_key
+      issuer: issuer
+      validity_period: 10080  # 60 * 24 * 7 分钟
+
 log:
   file:
     enable: true
@@ -15,10 +22,3 @@ database:
   mysql:
     dsn: mysql://root:admin123@localhost:3306/short_url_srv
     max_conns: 128
-
-auth:
-  jwt:
-    encoding_key: secret_key
-    decoding_key: secret_key
-    issuer: issuer
-    validity_period: 10080  # 60 * 24 * 7 分钟
