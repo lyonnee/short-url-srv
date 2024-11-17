@@ -7,6 +7,13 @@ mod logic;
 mod repository;
 mod service;
 
+#[cfg(not(target_env = "msvc"))]
+use tikv_jemallocator::Jemalloc;
+
+#[cfg(not(target_env = "msvc"))]
+#[global_allocator]
+static GLOBAL: Jemalloc = Jemalloc;
+
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = env::args().collect();
