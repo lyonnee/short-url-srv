@@ -32,3 +32,15 @@ url = "2.5.2"
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 tikv-jemallocator = "0.6"
+
+[profile.dev]
+opt-level = 0
+debug = true
+panic = "unwind"
+
+[profile.release]
+opt-level = 3     # 最大程度优化代码速度
+lto = "fat"       # 启用最大程度的链接时优化
+codegen-units = 1 # 降低代码生成单元数，增加优化时间但提升性能
+panic = "abort"   # 使用 'abort' 而不是 'unwind' 来处理 panic
+debug = false
