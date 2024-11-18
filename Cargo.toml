@@ -2,40 +2,33 @@
 name = "short-url-srv"
 version = "0.1.0"
 edition = "2021"
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# http
 axum = { version = "0.7" }
 axum-extra = { version = "0.9", features = ["typed-header"] }
-tokio = { version = "1.0", features = ["full"] }
-
-# database
-sqlx = { version = "0.8.2", features = ["runtime-tokio", "mysql", "time"] }
-
-# logger
-tracing = { version = "0.1.40" }
-tracing-subscriber = { version = "0.3", features = ["json"] }
-tracing-appender = "0.2"
-tower-http = { version = "0.5", features = ["trace"] }
-
-# configration
+base62 = { version = "2.0" }
+bcrypt = "0.15"
+chrono = "0.4.38"
 confique = { version = "0.2.5", features = ["yaml"] }
+jsonwebtoken = "9.3.0"
+lazy_static = { version = "1.5" }
+murmur3 = "0.5.2"
+notify = "6.1"
+once_cell = "1.19.0"
+rand = "0.8"
+reqwest = "0.12.7"
 
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
-lazy_static = { version = "1.5" }
-bcrypt = "0.15"
-rand = "0.8"
-notify = "6.1"
-jsonwebtoken = "9.3.0"
-chrono = "0.4.38"
-once_cell = "1.19.0"
+sqlx = { version = "0.8.2", features = ["runtime-tokio", "mysql", "time"] }
+tokio = { version = "1.0", features = ["full"] }
+tower-http = { version = "0.5", features = ["trace"] }
+
+tracing = { version = "0.1.40" }
+tracing-appender = "0.2"
+tracing-subscriber = { version = "0.3", features = ["json"] }
 url = "2.5.2"
-reqwest = "0.12.7"
-base62 = { version = "2.0" }
-murmur3 = "0.5.2"
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 tikv-jemallocator = "0.6"
